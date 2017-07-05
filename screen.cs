@@ -29,10 +29,10 @@ public class screen : MonoBehaviour
 
     void LateUpdate()
     {
-        if (Input.GetKeyDown(KeyCode.Mouse0))
-        {
-            takepic();
-        }
+        //if (Input.GetKeyDown(KeyCode.Mouse0))
+        //{
+         //   takepic();
+        //}
         if (Input.GetKeyDown(KeyCode.Mouse1))
         {
             canv.SetActive(true);
