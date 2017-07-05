@@ -2,44 +2,53 @@
 using System.Collections;
 using System;
 using System.IO;
+using UnityEditor;
 
 public class screen : MonoBehaviour
 {
-    Texture2D screenCap;
-    Texture2D border;
-    bool shot = false;
+    public int resolution = 3; // 1= default, 2= 2x default, etc.
+    public string imageName = "Screenshot_";
+    public string customPath = ""; // leave blank for project file location
+    public bool resetIndex = false;
+    private int index = 0;
+    public GameObject canv;
 
-    // Use this for initialization
-    void Start()
+    void Awake()
     {
-        screenCap = new Texture2D(300, 200, TextureFormat.RGB24, false); // 1
-        border = new Texture2D(2, 2, TextureFormat.ARGB32, false); // 2
-        border.Apply();
+        if (resetIndex) PlayerPrefs.SetInt("ScreenshotIndex", 0);
+        if (customPath != "")
+        {
+            if (!System.IO.Directory.Exists(customPath))
+            {
+                System.IO.Directory.CreateDirectory(customPath);
+            }
+        }
+        index = PlayerPrefs.GetInt("ScreenshotIndex") != 0 ? PlayerPrefs.GetInt("ScreenshotIndex") : 1;
     }
 
-    // Update is called once per frame
-    void Update()
+
+    void LateUpdate()
     {
-        if (Input.GetKeyUp(KeyCode.Mouse0))
-        { // 3
-            StartCoroutine("Capture");
-            //Capture();
+        if (Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            takepic();
+        }
+        if (Input.GetKeyDown(KeyCode.Mouse1))
+        {
+            canv.SetActive(true);
         }
     }
 
-    IEnumerator Capture()
+    public void takepic()
     {
-        yield return new WaitForEndOfFrame();
-        screenCap.ReadPixels(new Rect(198, 98, 298, 198), 0, 0);
-        screenCap.Apply();
-
-        // Encode texture into PNG
-        byte[] bytes = screenCap.EncodeToPNG();
-        //Object.Destroy(screenCap);
-
-        // For testing purposes, also write to a file in the project folder
-        File.WriteAllBytes(Application.dataPath + "/SavedScreen.png", bytes);
-
-        shot = true;
+        canv.SetActive(false);
+        Application.CaptureScreenshot(customPath + imageName + index + ".png", resolution);
+        Debug.LogWarning("Screenshot saved: " + customPath + " --- " + imageName + index);
+        index++;
+        //canv.SetActive(true);
+    }
+    void OnApplicationQuit()
+    {
+        PlayerPrefs.SetInt("ScreenshotIndex", (index));
     }
 }
